@@ -8,7 +8,7 @@ from albumentations.pytorch import ToTensorV2
 from tqdm import tqdm
 
 from model import UNet
-from utils import (check_accuracy, get_loaders, load_checkpoint,
+from utils.utils import (check_accuracy, get_loaders, load_checkpoint,
                    save_checkpoint, save_predictions_as_imgs, split_train_val)
 
 # Hyperparameters

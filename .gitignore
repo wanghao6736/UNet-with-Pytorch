@@ -4,6 +4,8 @@
 # 忽略所有pycache文件
 **/__pycache__/**
 
+tests/**
+
 # 保留input文件夹但忽略其中内容
 input/Carvana/train/*
 !input/Carvana/train/.gitkeep
