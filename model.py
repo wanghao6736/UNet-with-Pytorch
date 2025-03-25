@@ -1,9 +1,16 @@
+"""
+Simple UNet model for image segmentation based on the paper:
+https://arxiv.org/abs/1505.04597
+"""
 import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
 
 
 class DoubleConv(nn.Module):
+    """
+    Double convolution layer with batch normalization and ReLU activation.
+    """
     def __init__(self, in_channels, out_channels):
         super(DoubleConv, self).__init__()
         self.conv = nn.Sequential(
@@ -20,7 +27,10 @@ class DoubleConv(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1, features=[64, 128, 256, 512]):
+    """
+    UNet model for image segmentation.
+    """
+    def __init__(self, in_channels=3, out_channels=1, features=[64, 128, 256, 512], bilinear=True):
         super(UNet, self).__init__()
         self.ups = nn.ModuleList()
         self.downs = nn.ModuleList()
@@ -31,9 +41,16 @@ class UNet(nn.Module):
             self.downs.append(DoubleConv(in_channels, feature))
             in_channels = feature
 
-        # Up part of the UNet, alternatively we can choose to use bilinear interpolation
+        # Up part of the UNet
         for feature in reversed(features):
             self.ups.append(
+                # use bilinear interpolation to reduce the checkerboard effect
+                nn.Sequential(
+                    nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),
+                    # use 1x1 convolution to reduce the number of channels
+                    nn.Conv2d(feature * 2, feature, kernel_size=1)
+                )
+                if bilinear else
                 nn.ConvTranspose2d(feature * 2, feature, kernel_size=2, stride=2)
             )
             self.ups.append(DoubleConv(feature * 2, feature))

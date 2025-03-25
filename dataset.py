@@ -6,6 +6,9 @@ from torch.utils.data import Dataset
 
 
 class CarvanaDataset(Dataset):
+    """
+    Carvana dataset for image segmentation.
+    """
     def __init__(self, image_dir: Path, mask_dir: Path, transform=None):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
