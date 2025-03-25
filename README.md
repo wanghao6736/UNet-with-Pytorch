@@ -15,10 +15,13 @@
 ├── output
 │   ├── checkpoints
 │   └── saved_images
+├── utils
+│   ├── patch_extractor.py
+│   └── utils.py
 ├── dataset.py
 ├── model.py
 ├── train.py
-└── utils.py
+└── README.md
 ```
 
 创建目录结构命令：
