@@ -1,0 +1,25 @@
+.DS_Store
+.vscode
+
+# 忽略所有pycache文件
+**/__pycache__/**
+
+# 保留input文件夹但忽略其中内容
+input/Carvana/train/*
+!input/Carvana/train/.gitkeep
+
+input/Carvana/train_masks/*
+!input/Carvana/train_masks/.gitkeep
+
+input/Carvana/val/*
+!input/Carvana/val/.gitkeep
+
+input/Carvana/val_masks/*
+!input/Carvana/val_masks/.gitkeep
+
+# 保留output文件夹结构但忽略特定内容
+output/checkpoints/*
+!output/checkpoints/.gitkeep
+
+output/saved_images/*
+!output/saved_images/.gitkeep
