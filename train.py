@@ -7,7 +7,7 @@ import torch.optim as optim
 from albumentations.pytorch import ToTensorV2
 from tqdm import tqdm
 
-from model import UNet
+from model import UNet, NestedUNet
 from utils.utils import (check_accuracy, get_loaders, load_checkpoint,
                    save_checkpoint, save_predictions_as_imgs, split_train_val)
 
@@ -20,7 +20,7 @@ DEVICE = (
     if torch.cuda.is_available()
     else 'cpu'
 )
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 NUM_EPOCHS = 3
 NUM_WORKERS = 2
 IMAGE_HEIGHT = 320
@@ -92,7 +92,7 @@ def main():
         ]
     )
 
-    model = UNet(in_channels=3, out_channels=1).to(DEVICE)
+    model = NestedUNet(in_channels=3, out_channels=1).to(DEVICE)
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
