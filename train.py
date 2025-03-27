@@ -6,7 +6,7 @@ import torch.optim as optim
 from albumentations.pytorch import ToTensorV2
 from tqdm import tqdm
 
-from model import NestedUNet
+from models import UNet, NestedUNet, ResUNet, AttentionUNet, ResAttentionUNet
 from utils.loss import FocalLoss
 from utils.utils import (check_accuracy, get_loaders, load_checkpoint,
                          save_checkpoint, save_predictions_as_imgs,
@@ -94,7 +94,7 @@ def main():
         ]
     )
 
-    model = NestedUNet(in_channels=3, out_channels=1).to(DEVICE)
+    model = UNet(in_channels=3, out_channels=1).to(DEVICE)
     loss_fn = FocalLoss(alpha=0.25, gamma=2.0, reduction='mean', multi_class=False, data_format='BCHW')
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     loss_visualizer = LossVisualizer(title="Training Loss", figsize=(10, 6))
