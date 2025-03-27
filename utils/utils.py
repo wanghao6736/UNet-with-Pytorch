@@ -7,6 +7,8 @@ import torchvision
 from torch.utils.data import DataLoader
 
 from dataset import CarvanaDataset
+from utils.metrics import Accuracy, DiceScore, IoU
+from utils.visualization import MetricsVisualizer
 
 
 def save_checkpoint(state, filename='output/checkpoints/my_checkpoint.pth.tar'):
@@ -94,23 +96,49 @@ def check_accuracy(loader, model, device='cuda'):
     num_pixels = 0
     dice_score = 0  # dice score is a metric that measures the similarity between two sets of data
     model.eval()
+    acc_calculator = Accuracy(data_format='BCHW')
+    dice_calculator = DiceScore(smooth=1e-6)
+    iou_calculator = IoU(smooth=1e-6)
+    metrics_visualizer = MetricsVisualizer(title="Metrics Scores", figsize=(10, 5))
 
     with torch.no_grad():
         for x, y in loader:
             x = x.to(device)
             y = y.to(device).unsqueeze(1)
-            preds = torch.sigmoid(model(x))
+            pred = model(x)
+            preds = torch.sigmoid(pred)
             preds = (preds > 0.5).float()
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
             dice_score += (2 * (preds * y).sum()) / (
                 (preds + y).sum() + 1e-8
             )
+            acc_calculator.update(pred, y)
+            dice_calculator.update(pred, y)
+            iou_calculator.update(pred, y)
 
     print(
         f'Got {num_correct}/{num_pixels} with acc {num_correct / num_pixels * 100:.2f}'
     )
-    print(f'Dice score: {dice_score / len(loader):.4f}')
+    print(f'New Accuracy: {acc_calculator.compute():.4f}')
+    print(f'Old Dice score: {dice_score / len(loader):.4f}')
+    print(f'New Dice score: {dice_calculator.compute():.4f}')
+    print(f'IoU score: {iou_calculator.compute():.4f}')
+    metrics_visualizer.plot(
+        dice_calculator.metric_history,
+        save_path='output/metrics/dice_score.png',
+        show=False,
+        close=True)
+    metrics_visualizer.plot(
+        iou_calculator.metric_history,
+        save_path='output/metrics/iou_score.png',
+        show=False,
+        close=True)
+    metrics_visualizer.plot(
+        acc_calculator.metric_history,
+        save_path='output/metrics/accuracy.png',
+        show=False,
+        close=True)
     model.train()
 
 
