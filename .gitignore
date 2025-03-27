@@ -20,8 +20,16 @@ input/Carvana/val_masks/*
 !input/Carvana/val_masks/.gitkeep
 
 # 保留output文件夹结构但忽略特定内容
-output/checkpoints/*
-!output/checkpoints/.gitkeep
+**/output/checkpoints/*
+!**/output/checkpoints/.gitkeep
 
-output/saved_images/*
-!output/saved_images/.gitkeep
+**/output/loss/**
+!**/output/loss/.gitkeep
+
+**/output/metrics/**
+!**/output/metrics/.gitkeep
+
+**/output/saved_images/*
+!**/output/saved_images/.gitkeep
+
+**/output/test_plots/*
