@@ -2,14 +2,16 @@ from pathlib import Path
 
 import albumentations as A
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from albumentations.pytorch import ToTensorV2
 from tqdm import tqdm
 
-from model import UNet, NestedUNet
+from model import NestedUNet
+from utils.loss import FocalLoss
 from utils.utils import (check_accuracy, get_loaders, load_checkpoint,
-                   save_checkpoint, save_predictions_as_imgs, split_train_val)
+                         save_checkpoint, save_predictions_as_imgs,
+                         split_train_val)
+from utils.visualization import LossVisualizer
 
 # Hyperparameters
 LEARNING_RATE = 1e-4
@@ -93,8 +95,9 @@ def main():
     )
 
     model = NestedUNet(in_channels=3, out_channels=1).to(DEVICE)
-    loss_fn = nn.BCEWithLogitsLoss()
+    loss_fn = FocalLoss(alpha=0.25, gamma=2.0, reduction='mean', multi_class=False, data_format='BCHW')
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    loss_visualizer = LossVisualizer(title="Training Loss", figsize=(10, 6))
 
     train_loader, val_loader = get_loaders(
         TRAIN_IMG_DIR,
@@ -116,6 +119,11 @@ def main():
 
     for epoch in range(NUM_EPOCHS):
         train_fn(train_loader, model, optimizer, loss_fn, scaler)
+        loss_visualizer.plot(
+            loss_fn.loss_history,
+            save_path=WORKING_DIR / 'loss' / f'loss_curve_{epoch}.png',
+            show=False,
+            close=True)
 
         # save model
         checkpoint = {
